@@ -12,263 +12,374 @@
 :root[data-theme="dark"]{--bg:#1d1613;--fg:#f1e6d6;--card:#2b211c;--line:#4a3a30}
 html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
 *,*::before,*::after{box-sizing:inherit}
-body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font-family:"Noto Serif TC","PMingLiU","Songti TC",serif;padding:12px}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font-family:"Noto Serif TC","PMingLiU","Songti TC",serif;padding:10px;-webkit-user-select:none;user-select:none}
 .app{max-width:560px;margin:0 auto}
-h1{margin:4px 0 10px;text-align:center;font-weight:900;letter-spacing:.2em;font-size:clamp(20px,6vw,28px);background:var(--gold);color:#2a1a14;border:2px solid #7a4a10;padding:6px}
-.stats{display:flex;gap:8px;margin-bottom:8px;font-weight:600}
-.stats>div{flex:1;background:var(--card);border:2px solid var(--line);border-radius:8px;padding:6px 8px;font-size:14px;white-space:nowrap}
-.bar{height:6px;background:var(--line);border-radius:3px;margin-top:4px;overflow:hidden}
-.bar i{display:block;height:100%;width:100%;background:var(--red);transition:width .2s}
-.pondbox{position:relative;height:clamp(340px,62vh,520px);border:5px solid var(--red);border-radius:8px;overflow:hidden;box-shadow:0 6px 0 #8f1610;touch-action:manipulation}
+.top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+h1{margin:0;flex:1;font-weight:900;letter-spacing:.15em;font-size:clamp(18px,5.5vw,26px);background:var(--gold);color:#2a1a14;border:2px solid #7a4a10;padding:4px 8px;text-align:center}
+.chip{background:var(--card);border:2px solid var(--line);border-radius:8px;padding:4px 8px;font-weight:600;font-size:14px;white-space:nowrap}
+.pondbox{position:relative;height:clamp(320px,56vh,500px);border:5px solid var(--red);border-radius:8px;overflow:hidden;box-shadow:0 6px 0 #8f1610;touch-action:manipulation}
 #pond{position:absolute;inset:0;width:100%;height:100%;display:block}
-#vrm{position:absolute;right:0;bottom:0;width:34%;max-width:150px;aspect-ratio:.68;pointer-events:none}
+#vrm{position:absolute;right:2%;bottom:1%;width:28%;max-width:120px;aspect-ratio:.68;pointer-events:none}
 .tip{position:absolute;left:8px;top:6px;font-size:12px;color:#fff;text-shadow:0 1px 2px #000;pointer-events:none}
-.btns{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
-button,label.b{font:inherit;font-weight:600;font-size:14px;padding:10px 6px;border-radius:8px;border:2px solid #8f1610;background:var(--red);color:#fff7e0;cursor:pointer;text-align:center;box-shadow:0 3px 0 #8f1610}
-button:active,label.b:active{transform:translateY(2px);box-shadow:0 1px 0 #8f1610}
-button:disabled{opacity:.5}
-label.b input{display:none}
-select{font:inherit;font-size:13px;padding:10px 6px;border-radius:8px;border:2px solid var(--line);background:var(--card);color:var(--fg);min-width:0}
+#combo{position:absolute;left:8px;bottom:8px;font-weight:900;color:#ffe27a;text-shadow:0 2px 3px #000;font-size:18px;pointer-events:none}
+.stk{margin:8px 0 6px;font-size:13px;font-weight:600;display:flex;gap:8px;align-items:center}
+.bar{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--red);transition:width .2s}
+.food{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+button{font:inherit;font-weight:600;font-size:13px;padding:9px 4px;border-radius:8px;border:2px solid #8f1610;background:var(--red);color:#fff7e0;cursor:pointer;box-shadow:0 3px 0 #8f1610}
+button:active{transform:translateY(2px);box-shadow:0 1px 0 #8f1610}
+button:disabled{opacity:.45}
+.food button{background:var(--card);color:var(--fg);border-color:var(--line);box-shadow:0 3px 0 var(--line)}
+.food button.on{background:var(--gold);border-color:#7a4a10;box-shadow:0 3px 0 #7a4a10;color:#2a1a14}
+.nav{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:10px}
 #msg{margin-top:8px;min-height:1.4em;font-size:13px;text-align:center}
+#lic{font-size:11px;text-align:center;opacity:.7}
+#panel{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:9}
+#panel.on{display:flex}
+.sheet{width:100%;max-width:560px;max-height:80vh;background:var(--bg);border:3px solid var(--red);border-bottom:0;border-radius:14px 14px 0 0;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px)}
+.ph{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-weight:900;font-size:17px}
+.ph button{padding:4px 10px}
+#pbody{overflow:auto;padding:0 12px 14px;-webkit-overflow-scrolling:touch}
+.row{display:flex;align-items:center;gap:8px;background:var(--card);border:2px solid var(--line);border-radius:8px;padding:8px;margin-bottom:8px;font-size:13px}
+.row .m{flex:1;min-width:0}.row b{font-size:14px}.row small{display:block;opacity:.75}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.cell{background:var(--card);border:2px solid var(--line);border-radius:8px;padding:6px 2px;text-align:center;font-size:11px}
+.dot{display:inline-block;width:34px;height:18px;border-radius:50%;margin-bottom:2px}
+.R0{color:#8a9}.R1{color:#3b8ee8}.R2{color:#a24fe8}.R3{color:#e89a00}
+.sel{outline:3px solid var(--gold)}
+.pb{height:6px;background:var(--line);border-radius:3px;margin-top:4px;overflow:hidden}.pb i{display:block;height:100%;background:var(--gold)}
+h3{margin:10px 0 6px;font-size:14px}
+#res{margin-top:6px;font-size:13px;font-weight:600;text-align:center}
 </style>
 </head>
 <body>
 <div class="app">
-<h1>錦鯉池</h1>
-<div class="stats">
-<div>🪙 <span id="coins">10</span></div>
-<div>🐟 <span id="cnt">3</span></div>
-<div>🍚 飼料<div class="bar"><i id="stk"></i></div></div>
+<div class="top"><h1>錦鯉池</h1><span class="chip">🪙 <b id="coins">0</b></span><span class="chip">🐟 <b id="cnt">0</b></span></div>
+<div class="pondbox"><canvas id="pond"></canvas><span class="tip">點水面請助手投料・點氣泡領獎勵・點陸地蓋建設</span><div id="combo"></div><canvas id="vrm"></canvas></div>
+<div class="stk">🍚 <div class="bar"><i id="stk"></i></div><span id="stkt"></span></div>
+<div class="food" id="food"></div>
+<div id="res"></div>
+<div class="nav">
+<button data-t="shop">商店</button><button data-t="egg">魚蛋</button><button data-t="dex">圖鑑</button><button data-t="quest">任務</button><button data-t="chars">角色</button><button data-t="build">建設</button>
 </div>
-<div class="pondbox">
-<canvas id="pond"></canvas>
-<span class="tip">點擊水面投飼料</span>
-<canvas id="vrm"></canvas>
+<div id="lic"></div><div id="msg">魚吃飽長大後會自動賣出換金幣。</div>
 </div>
-<div class="btns">
-<button id="buy">買魚苗</button>
-<button id="up">升級助手</button>
-<button id="auto">助手：開</button>
-<button id="loadp">載入內建人物</button>
-<select id="sel"></select>
-<label class="b" style="grid-column:1/-1">或載入本機 .vrm 檔<input id="file" type="file" accept=".vrm"></label>
-</div>
-<div id="lic" style="font-size:11px;text-align:center;opacity:.7"></div>
-<div id="msg">魚吃飽長大後會自動賣出換金幣。</div>
-</div>
+<div id="panel"><div class="sheet"><div class="ph"><span id="ptitle"></span><button id="pclose">✕</button></div><div id="pbody"></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@1.0.9/lib/three-vrm.min.js"></script>
 <script>
-const $=id=>document.getElementById(id), rnd=(a,b)=>a+Math.random()*(b-a);
-const pc=$('pond'),px=pc.getContext('2d');
-let W=1,H=1,D=1;
-function resize(){
-  const r=pc.parentElement.getBoundingClientRect();D=Math.min(devicePixelRatio||1,2);
-  W=r.width;H=r.height;pc.width=W*D;pc.height=H*D;px.setTransform(D,0,0,D,0,0);
-  if(typeof R!=='undefined'&&R){const v=$('vrm');R.setSize(v.clientWidth,v.clientHeight,false);cam.aspect=v.clientWidth/v.clientHeight;cam.updateProjectionMatrix();}
-}
-/* ---------- 遊戲狀態 ---------- */
-let coins=10,stock=10,auto=true,lvl=0,fishes=[],foods=[],ripples=[],pops=[];
-const interval=()=>4/(1+.4*lvl), fishPrice=()=>15+Math.max(0,fishes.length-3)*4, upCost=()=>30*(lvl+1);
-const COLS=[['#ff7a2f','#fff'],['#f2f2f2','#e8452c'],['#ffb347','#222'],['#e8452c','#fff']];
-function newFish(s=.35){fishes.push({x:rnd(40,W-40),y:rnd(H*.15,H*.8),a:rnd(0,6.28),s,ph:rnd(0,6),tx:0,ty:0,tt:0,c:COLS[Math.floor(Math.random()*COLS.length)]});}
-function drop(x,y,n=3){for(let i=0;i<n;i++)foods.push({x:x+rnd(-16,16),y:y+rnd(-8,8),life:9});ripples.push({x,y,r:2,a:.7});}
-function pop(x,y,t){pops.push({x,y,t,l:1.2});}
-pc.addEventListener('pointerdown',e=>{
-  if(stock<1)return pop(e.offsetX,e.offsetY,'沒飼料了');
-  stock--;drop(e.offsetX,e.offsetY);
-});
-$('buy').onclick=()=>{
-  if(fishes.length>=14)return msg('池子已經滿了');
-  if(coins<fishPrice())return msg('金幣不足');
-  coins-=fishPrice();newFish();msg('新魚苗加入！');
-};
-$('up').onclick=()=>{
-  if(coins<upCost())return msg('金幣不足');
-  coins-=upCost();lvl++;msg('助手投料更快了（Lv.'+lvl+'）');
-};
-$('auto').onclick=()=>{auto=!auto;$('auto').textContent='助手：'+(auto?'開':'關');};
-let mt;function msg(t){$('msg').textContent=t;clearTimeout(mt);mt=setTimeout(()=>$('msg').textContent='魚吃飽長大後會自動賣出換金幣。',2500);}
-
-/* ---------- 3D 人物（內建 VRM 預設 + 本機 VRM + 備用人物） ---------- */
+const $=id=>document.getElementById(id),rnd=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.floor(Math.random()*a.length)];
+const pc=$('pond'),px=pc.getContext('2d');let W=1,H=1,D=1;
+/* ---------- 資料 ---------- */
+const RN=['普通','稀有','史詩','傳說'],RC=['#8a9','#3b8ee8','#a24fe8','#e89a00'];
+const SP=[
+ {n:'紅白錦鯉',r:0,p:8,c:['#ff7a2f','#fff']},{n:'金魚',r:0,p:10,c:['#ffb347','#ffe9a8']},{n:'墨錦鯉',r:0,p:11,c:['#3b3b44','#e8452c']},
+ {n:'三色錦鯉',r:1,p:22,c:['#f2f2f2','#e8452c']},{n:'黃金鯉',r:1,p:28,c:['#f2c21b','#fff0a0']},
+ {n:'藍寶石鯉',r:2,p:48,c:['#3f7fe0','#aee0ff']},{n:'紅龍魚',r:2,p:65,c:['#d4161c','#ffb199']},{n:'彩虹鯉',r:3,p:130,rb:1,c:['#f00','#ff0']}];
+const FT=[{n:'普通飼料',c:1,g:.07,col:'#f3d9a0'},{n:'營養飼料',c:3,g:.14,col:'#9be37a'},{n:'黃金飼料',c:6,g:.26,col:'#ffd23a'}];
+const UP={cap:['飼料倉庫','最大飼料 +8',40],regen:['補給速度','飼料回復 +15%',50],grow:['營養配方','成長速度 +10%',60],sell:['行情加成','賣價 +10%',80],pond:['擴建池塘','魚數上限 +2',100],helper:['助手訓練','助手投料更快',45]};
+const EGG=[{n:'普通魚蛋',c:20,o:[.7,.25,.05,0]},{n:'高級魚蛋',c:80,o:[0,.55,.35,.1]}];
 const GH=(r,b,p)=>[`https://raw.githubusercontent.com/${r}/${b}/${p}`,`https://cdn.jsdelivr.net/gh/${r}@${b}/${p}`];
-const PRESETS=[
- {id:'cb',name:'AvatarSample_B（VRM 1.0・最輕量）',lic:'VRM 1.0 授權，免標註（VRoid Project / pixiv）',urls:GH('zoan37/ChatVRM','main','public/AvatarSample_B.vrm')},
- {id:'orion',name:'Avatar Orion（CC0）',lic:'CC0 公眾領域',urls:GH('madjin/vrm-samples','master','Avatar_Orion.vrm')},
- {id:'va',name:'AvatarSample_A（VRoid 範例）',lic:'VRoid 範例模型使用條件',urls:GH('madjin/vrm-samples','master','vroid/stable/AvatarSample_A.vrm')},
- {id:'seed',name:'Seed-san（需標註 VirtualCast, Inc.）',lic:'VRM 1.0 授權；使用時必須標註作者：VirtualCast, Inc.',urls:GH('madjin/vrm-samples','master','Seed-san/vrm/Seed-san.vrm')}
-];
-$('sel').innerHTML=PRESETS.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-let R=null,cam,sc,ch=null,vrm=null,armR,armL,GL,VL,VU,isV0=false,happyT=0,blinkT=2,blinkP=-1;
+const VT='VRoid 範例模型使用條件',C0='CC0 公眾領域',MS='madjin/vrm-samples';
+const CH=[
+ {id:'f1',n:'紅衣漁夫',cost:0,spd:1,k:3,lu:0,fb:{s:0xc1221b,h:0xe9b72b,t:'cone',hair:0x3a2a20}},
+ {id:'cb',n:'AvatarSample_B（VRM）',cost:0,spd:1.1,k:3,lu:.05,lic:'VRM 1.0 授權，免標註（VRoid Project / pixiv）',urls:GH('zoan37/ChatVRM','main','public/AvatarSample_B.vrm')},
+ {id:'f2',n:'藍衣少年',cost:60,spd:1.2,k:3,lu:0,fb:{s:0x2f6fd0,h:0xffffff,t:'cyl',hair:0x222222}},
+ {id:'f3',n:'金帽船長',cost:120,spd:1,k:4,lu:.1,fb:{s:0x1f3a6e,h:0xe9b72b,t:'cyl',hair:0x6a4a2a}},
+ {id:'f4',n:'粉衣少女',cost:200,spd:1.3,k:3,lu:.1,fb:{s:0xe86aa0,h:0xffc2d8,t:'bun',hair:0x5a3020}},
+ {id:'va',n:'AvatarSample_A',cost:150,spd:1.2,k:3,lu:.1,lic:VT,urls:GH(MS,'master','vroid/stable/AvatarSample_A.vrm')},
+ {id:'vb',n:'AvatarSample_B（0.x）',cost:150,spd:1.1,k:4,lu:0,lic:VT,urls:GH(MS,'master','vroid/stable/AvatarSample_B.vrm')},
+ {id:'vc',n:'AvatarSample_C',cost:150,spd:1.4,k:3,lu:0,lic:VT,urls:GH(MS,'master','vroid/stable/AvatarSample_C.vrm')},
+ {id:'orion',n:'Orion',cost:250,spd:1.2,k:4,lu:.1,lic:C0,urls:GH(MS,'master','Avatar_Orion.vrm')},
+ {id:'vita',n:'Vita',cost:300,spd:1.3,k:4,lu:.1,lic:C0,urls:GH(MS,'master','vroid/beta/Vita.vrm')},
+ {id:'vivi',n:'Vivi',cost:300,spd:1.5,k:3,lu:.15,lic:C0,urls:GH(MS,'master','vroid/beta/Vivi.vrm')},
+ {id:'vict',n:'Victoria Rubin',cost:400,spd:1.3,k:5,lu:.1,lic:C0,urls:GH(MS,'master','vroid/beta/Victoria_Rubin.vrm')},
+ {id:'saku',n:'Sakurada Fumiriya',cost:400,spd:1.6,k:3,lu:.2,lic:C0,urls:GH(MS,'master','vroid/beta/Sakurada_Fumiriya.vrm')},
+ {id:'shino',n:'Sendagaya Shino',cost:500,spd:1.4,k:4,lu:.25,lic:C0,urls:GH(MS,'master','vroid/beta/Sendagaya_Shino.vrm')},
+ {id:'seed',n:'Seed-san',cost:600,spd:1.5,k:5,lu:.2,lic:'VRM 1.0 授權；使用時必須標註作者：VirtualCast, Inc.',urls:GH(MS,'master','Seed-san/vrm/Seed-san.vrm')}];
+const QT={feed:['投料',1.5],sell:['賣出錦鯉',14],earn:['賺取金幣',.45],hatch:['孵化魚蛋',30]},QN={feed:[15,30,60],sell:[3,6,10],earn:[80,200,400],hatch:[1,2,3]};
+const BLD=[
+ {id:'hut',n:'飼料小屋',t:'b',c:{w:12,s:4},e:'飼料上限 +10',fx:.08,fy:.5},{id:'sakura',n:'櫻花樹',t:'d',c:{w:10},e:'裝飾：賣價 +1%',fx:.2,fy:.5},
+ {id:'bamboo',n:'竹叢',t:'d',c:{w:6},e:'裝飾：賣價 +1%',fx:.31,fy:.55},{id:'flag',n:'錦鯉旗',t:'d',c:{w:5},e:'裝飾：賣價 +1%',fx:.42,fy:.55},
+ {id:'stall',n:'魚市攤位',t:'b',c:{w:20,s:10},e:'賣價 +10%',fx:.55,fy:.6},
+ {id:'lantern',n:'石燈籠',t:'d',c:{s:6},e:'裝飾：賣價 +1%',fx:.08,fy:.88},{id:'flower',n:'花圃',t:'d',c:{w:4,s:2},e:'裝飾：賣價 +1%',fx:.2,fy:.9},
+ {id:'pavilion',n:'涼亭',t:'b',c:{w:30,s:20,p:4},e:'離線收益 ×1.5',fx:.34,fy:.88},{id:'bridge',n:'石拱橋',t:'d',c:{s:12},e:'裝飾：賣價 +1%',fx:.47,fy:.9},
+ {id:'torii',n:'鳥居',t:'b',c:{w:15,s:15,p:2},e:'助手幸運 +10%',fx:.58,fy:.9}];
+/* ---------- 存檔 ---------- */
+let G={coins:25,lv:{cap:0,regen:0,grow:0,sell:0,pond:0,helper:0},fish:[{sp:0,s:.4},{sp:1,s:.3},{sp:2,s:.5}],disc:[0,1,2],un:['f1','cb'],ch:'cb',q:[],daily:'',streak:0,seen:Date.now(),snd:true,res:{w:0,s:0,p:0},built:[]};
+try{const t=localStorage.getItem('koi5');if(t){const o=JSON.parse(t);G=Object.assign(G,o);G.lv=Object.assign({cap:0,regen:0,grow:0,sell:0,pond:0,helper:0},o.lv);G.res=Object.assign({w:0,s:0,p:0},o.res);G.built=o.built||[];}}catch(e){}
+function save(){try{G.fish=fishes.map(f=>({sp:f.sp,s:f.s}));G.seen=Date.now();localStorage.setItem('koi5',JSON.stringify(G));}catch(e){}}
+function mkQ(){const k=pick(Object.keys(QT)),n=pick(QN[k]);return{k,n,p:0,r:Math.round(n*QT[k][1])};}
+while(G.q.length<3)G.q.push(mkQ());
+const track=(k,v=1)=>{for(const q of G.q)if(q.k===k&&q.p<q.n)q.p=Math.min(q.n,q.p+v);};
+/* ---------- 狀態 ---------- */
+let stock=10,ftype=0,combo=0,comboT=0,fishes=[],foods=[],ripples=[],pops=[],bubbles=[],bubT=15,tm=0,saveT=0,queue=[],proj=[],WH=300,cb={x:0,y:0,w:1,h:1};
+const sellMul=()=>1+.1*G.lv.sell+(G.built.includes('stall')?.1:0)+.01*BLD.filter(b=>b.t==='d'&&G.built.includes(b.id)).length;
+const maxStock=()=>20+8*G.lv.cap+(G.built.includes('hut')?10:0),maxFish=()=>6+2*G.lv.pond,cs=()=>CH.find(c=>c.id===G.ch)||CH[0];
+const upCost=k=>Math.round(UP[k][2]*Math.pow(1.6,G.lv[k])),upMax=k=>k==='pond'?5:10;
+const helperInt=()=>4/(1+.4*G.lv.helper)/cs().spd;
+let AC=null;
+function beep(f,d=.08,t='sine'){if(!G.snd)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain(),n=AC.currentTime;o.type=t;o.frequency.value=f;g.gain.setValueAtTime(.05,n);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(n+d);}catch(e){}}
+let mt;function msg(t){$('msg').textContent=t;clearTimeout(mt);mt=setTimeout(()=>$('msg').textContent='魚吃飽長大後會自動賣出換金幣。',3000);}
+function newFish(sp,s=.3){fishes.push({sp,x:rnd(40,W-40),y:rnd(WH*.15,WH*.8),a:rnd(0,6.28),s,ph:rnd(0,6),tx:0,ty:0,tt:0});}
+function drop(x,y,n=3,t=0){for(let i=0;i<n;i++)foods.push({x:x+rnd(-16,16),y:y+rnd(-8,8),life:9,t});ripples.push({x,y,r:2,a:.7});}
+const pop=(x,y,t)=>pops.push({x,y,t,l:1.3});
+function resize(){const r=pc.parentElement.getBoundingClientRect();D=Math.min(devicePixelRatio||1,2);W=r.width;H=r.height;WH=H*.74;pc.width=W*D;pc.height=H*D;px.setTransform(D,0,0,D,0,0);
+  if(R){const v=$('vrm');R.setSize(v.clientWidth,v.clientHeight,false);cam.aspect=v.clientWidth/v.clientHeight;cam.updateProjectionMatrix();}
+  cb={x:c2.offsetLeft,y:c2.offsetTop,w:c2.offsetWidth,h:c2.offsetHeight};}
+pc.addEventListener('pointerdown',e=>{
+  const x=e.offsetX,y=e.offsetY;
+  if(y>WH){tab='build';P.classList.add('on');render();return;}
+  for(const b of bubbles)if(Math.hypot(b.x-x,b.y-y)<30){
+    bubbles.splice(bubbles.indexOf(b),1);beep(880,.15);const r=Math.random();
+    if(r<.35){const c=Math.round(rnd(15,45));G.coins+=c;track('earn',c);pop(b.x,b.y,'+'+c+' 🪙');}
+    else if(r<.65){stock=Math.min(maxStock(),stock+10);pop(b.x,b.y,'+10 🍚');}
+    else{const k=Math.random()<.5?'w':'s';G.res[k]+=3;pop(b.x,b.y,'+3 '+(k==='w'?'🪵':'🪨'));}
+    return;}
+  const c=FT[ftype].c;if(stock<c)return pop(x,y,'飼料不足');
+  if(queue.length>=4)return pop(x,y,'助手忙碌中');
+  stock-=c;queue.push({x,y,n:3,t:ftype});track('feed');
+});
+/* ---------- 面板 ---------- */
+const P=$('panel'),PB=$('pbody');let tab='';
+const TT={shop:'🛒 升級商店',egg:'🥚 魚蛋孵化',dex:'📖 魚種圖鑑',quest:'📋 任務與簽到',chars:'🧑 選擇助手',build:'🏗️ 建設'};
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;P.classList.add('on');render();beep(500,.05);});
+$('pclose').onclick=()=>P.classList.remove('on');P.onclick=e=>{if(e.target===P)P.classList.remove('on');};
+function render(){
+  $('ptitle').textContent=TT[tab];let h='';
+  if(tab==='shop'){
+    for(const k in UP){const L=G.lv[k],mx=L>=upMax(k);h+=`<div class="row"><div class="m"><b>${UP[k][0]}</b> Lv.${L}/${upMax(k)}<small>${UP[k][1]}</small></div><button data-a="up" data-v="${k}" ${mx||G.coins<upCost(k)?'disabled':''}>${mx?'已滿級':'🪙'+upCost(k)}</button></div>`;}
+    h+=`<small>魚數上限 ${maxFish()}・飼料上限 ${maxStock()}</small>`;
+  }else if(tab==='egg'){
+    EGG.forEach((e,i)=>{h+=`<div class="row"><div class="m"><b>${e.n}</b><small>${e.o.map((p,j)=>p?RN[j]+' '+Math.round(p*100)+'%':'').filter(Boolean).join('・')}</small></div><button data-a="egg" data-v="${i}" ${G.coins<e.c?'disabled':''}>🪙${e.c}</button></div>`;});
+    h+=`<small>目前 ${fishes.length}/${maxFish()} 條。新魚種首次入池可得發現獎勵。</small>`;
+  }else if(tab==='dex'){
+    h+=`<small>已發現 ${G.disc.length}/${SP.length}</small><div class="grid" style="margin-top:6px">`;
+    SP.forEach((s,i)=>{const ok=G.disc.includes(i),n=fishes.filter(f=>f.sp===i).length;
+      h+=`<div class="cell"><span class="dot" style="background:${ok?(s.rb?'linear-gradient(90deg,red,yellow,lime,cyan,violet)':s.c[0]):'#777'}"></span><br>${ok?s.n:'？？？'}<br><span class="R${s.r}">${RN[s.r]}</span>${ok?'<br>🪙'+s.p+' ×'+n:''}</div>`;});
+    h+='</div>';
+  }else if(tab==='quest'){
+    const today=new Date().toDateString();
+    h+=`<div class="row"><div class="m"><b>每日簽到</b>（連續 ${G.streak} 天）<small>獎勵 🪙${20+10*Math.min(G.streak||0,7)}</small></div><button data-a="daily" ${G.daily===today?'disabled':''}>${G.daily===today?'已簽到':'簽到'}</button></div><h3>任務</h3>`;
+    G.q.forEach((q,i)=>{h+=`<div class="row"><div class="m"><b>${QT[q.k][0]} ${q.n}</b><small>獎勵 🪙${q.r}</small><div class="pb"><i style="width:${q.p/q.n*100}%"></i></div></div><button data-a="qc" data-v="${i}" ${q.p<q.n?'disabled':''}>領取</button></div>`;});
+  }else if(tab==='build'){
+    h+=`<div class="row"><div class="m"><b>資源</b><small>🪵${G.res.w}　🪨${G.res.s}　🦪${G.res.p}（賣魚、點氣泡可獲得）</small></div></div>`;
+    for(const b of BLD){const own=G.built.includes(b.id),ok=G.res.w>=(b.c.w||0)&&G.res.s>=(b.c.s||0)&&G.res.p>=(b.c.p||0);
+      h+=`<div class="row"><div class="m"><b>${b.n}</b> <small style="display:inline">${b.t==='b'?'建築':'裝飾'}</small><small>${b.e}</small></div><button data-a="bld" data-v="${b.id}" ${own||!ok?'disabled':''}>${own?'已建':(b.c.w?'🪵'+b.c.w+' ':'')+(b.c.s?'🪨'+b.c.s+' ':'')+(b.c.p?'🦪'+b.c.p:'')}</button></div>`;}
+  }else if(tab==='chars'){
+    h+='<small>不同助手有不同的投料速度、每次顆數與幸運（機率投出黃金飼料）。</small><div style="height:8px"></div>';
+    for(const c of CH){const un=G.un.includes(c.id);
+      h+=`<div class="row ${G.ch===c.id?'sel':''}"><div class="m"><b>${c.n}</b>${c.fb?'':' <small style="display:inline">VRM</small>'}<small>速度×${c.spd}・${c.k}顆・幸運${Math.round(c.lu*100)}%</small></div><button data-a="ch" data-v="${c.id}" ${G.ch===c.id?'disabled':''}>${G.ch===c.id?'使用中':un?'選用':'🪙'+c.cost}</button></div>`;}
+    h+='<div class="row"><div class="m"><b>本機 VRM</b><small>載入自己的 .vrm（僅外觀，使用目前助手能力）</small></div><button id="fbtn">選擇檔案</button><input id="file" type="file" accept=".vrm" hidden></div>';
+  }
+  h+=`<div class="row" style="margin-top:10px"><div class="m"><b>音效</b></div><button data-a="snd">${G.snd?'開':'關'}</button><button data-a="reset">重置存檔</button></div>`;
+  PB.innerHTML=h;
+  const fb=$('fbtn');if(fb){fb.onclick=()=>$('file').click();$('file').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{tok++;loadVrm(rd.result,{name:f.name,lic:''});P.classList.remove('on');};rd.readAsArrayBuffer(f);};}
+}
+PB.onclick=e=>{
+  const a=e.target.closest('[data-a]');if(!a||a.disabled)return;const v=a.dataset.v;
+  switch(a.dataset.a){
+   case'up':G.coins-=upCost(v);G.lv[v]++;beep(700,.1);break;
+   case'egg':{if(fishes.length>=maxFish())return msg('池子已滿，請先擴建池塘');
+     G.coins-=EGG[v].c;const r=EGG[v].o;let x=Math.random(),ri=0;for(let i=0;i<4;i++){x-=r[i];if(x<0){ri=i;break;}}
+     const id=pick(SP.map((s,i)=>i).filter(i=>SP[i].r===ri));newFish(id,.2);track('hatch');beep(660,.2,'triangle');
+     let t='孵出了 '+SP[id].n+'（'+RN[ri]+'）！';if(!G.disc.includes(id)){G.disc.push(id);const b=[10,30,80,200][ri];G.coins+=b;t+=' 新發現 +'+b+'🪙';}msg(t);break;}
+   case'daily':{const y=new Date(Date.now()-864e5).toDateString();G.streak=G.daily===y?G.streak+1:1;G.daily=new Date().toDateString();const c=20+10*Math.min(G.streak,7);G.coins+=c;msg('簽到成功 +'+c+'🪙');beep(800,.15);break;}
+   case'qc':{const q=G.q[v];G.coins+=q.r;track('earn',q.r);G.q[v]=mkQ();msg('任務完成 +'+q.r+'🪙');beep(900,.15);break;}
+   case'ch':{const c=CH.find(x=>x.id===v);if(!G.un.includes(v)){if(G.coins<c.cost)return msg('金幣不足');G.coins-=c.cost;G.un.push(v);}applyChar(v);break;}
+   case'bld':{const b=BLD.find(x=>x.id===v);if(G.built.includes(v)||G.res.w<(b.c.w||0)||G.res.s<(b.c.s||0)||G.res.p<(b.c.p||0))return;
+     G.res.w-=b.c.w||0;G.res.s-=b.c.s||0;G.res.p-=b.c.p||0;G.built.push(v);beep(600,.2,'triangle');msg('建造完成：'+b.n);break;}
+   case'snd':G.snd=!G.snd;break;
+   case'reset':if(confirm('確定重置所有進度？')){try{localStorage.removeItem('koi5');}catch(_){}location.reload();}return;
+  }
+  save();render();
+};
+function buildFood(){$('food').innerHTML=FT.map((f,i)=>`<button data-f="${i}" class="${i===ftype?'on':''}">${f.n}<br>${f.c} 份</button>`).join('');
+  $('food').querySelectorAll('button').forEach(b=>b.onclick=()=>{ftype=+b.dataset.f;buildFood();});}
+/* ---------- 3D 助手 ---------- */
+let R=null,cam,sc,ch=null,vrm=null,armR,armL,GL,VL,VU,isV0=false,happyT=0,blinkT=2,blinkP=-1,tok=0,yaw=0,baseYaw=0;
 const c2=$('vrm');
 async function initThree(){
   try{
-    if(!window.THREE||!THREE.GLTFLoader||!window.THREE_VRM)throw new Error('腳本未載入 THREE:'+!!window.THREE+' GLTF:'+!!(window.THREE&&THREE.GLTFLoader)+' VRM:'+!!window.THREE_VRM);
+    if(!window.THREE||!THREE.GLTFLoader||!window.THREE_VRM)throw new Error('腳本未載入');
     GL=THREE.GLTFLoader;VL=THREE_VRM.VRMLoaderPlugin;VU=THREE_VRM.VRMUtils;
-    R=new THREE.WebGLRenderer({canvas:c2,alpha:true,antialias:true});
-    R.setPixelRatio(Math.min(devicePixelRatio||1,2));R.setClearColor(0,0);
+    R=new THREE.WebGLRenderer({canvas:c2,alpha:true,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio||1,2));R.setClearColor(0,0);
     sc=new THREE.Scene();cam=new THREE.PerspectiveCamera(22,.68,.1,50);
     const dl=new THREE.DirectionalLight(0xffffff,2.2);dl.position.set(.6,1.5,2.5);sc.add(dl);sc.add(new THREE.AmbientLight(0xffffff,1.1));
-    buildFallback();resize();
-    const p=PRESETS[0];loadVrm(p.urls,p);
+    resize();applyChar(G.ch);
   }catch(e){console.warn(e);R=null;msg('3D 引擎載入失敗：'+e.message);}
 }
-function fit(o){
-  o.updateMatrixWorld(true);
-  const b=new THREE.Box3().setFromObject(o),h=b.max.y-b.min.y,cy=(b.max.y+b.min.y)/2;
-  const d=h*1.06/(2*Math.tan(THREE.MathUtils.degToRad(11)));
-  cam.position.set(0,cy,d);cam.lookAt(0,cy,0);
-}
-function buildFallback(){
-  const g=new THREE.Group(),M=c=>new THREE.MeshStandardMaterial({color:c,roughness:.7});
-  const add=(geo,c,x,y,z)=>{const m=new THREE.Mesh(geo,M(c));m.position.set(x,y,z);g.add(m);return m;};
-  add(new THREE.CylinderGeometry(.22,.26,.7,16),0xc1221b,0,1,0);
-  add(new THREE.SphereGeometry(.22,20,16),0xffd9b8,0,1.6,0);
-  add(new THREE.ConeGeometry(.42,.2,24),0xe9b72b,0,1.82,0);
+function fit(o){o.updateMatrixWorld(true);const b=new THREE.Box3().setFromObject(o),h=b.max.y-b.min.y,cy=(b.max.y+b.min.y)/2,d=h*1.06/(2*Math.tan(THREE.MathUtils.degToRad(11)));cam.position.set(0,cy,d);cam.lookAt(0,cy,0);}
+function setChar(o){if(ch)sc.remove(ch);ch=o;baseYaw=o.rotation.y;yaw=0;sc.add(o);fit(o);}
+function buildFallback(c){
+  const g=new THREE.Group(),M=x=>new THREE.MeshStandardMaterial({color:x,roughness:.7});
+  const add=(geo,x,px_,y,z)=>{const m=new THREE.Mesh(geo,M(x));m.position.set(px_,y,z);g.add(m);};
+  add(new THREE.CylinderGeometry(.22,.26,.7,16),c.s,0,1,0);add(new THREE.SphereGeometry(.22,20,16),0xffd9b8,0,1.6,0);
+  add(new THREE.SphereGeometry(.23,20,12,0,6.28,0,1.3),c.hair,0,1.62,-.01);
+  if(c.t==='cone')add(new THREE.ConeGeometry(.42,.2,24),c.h,0,1.84,0);
+  else if(c.t==='cyl')add(new THREE.CylinderGeometry(.2,.24,.18,20),c.h,0,1.86,0);
+  else add(new THREE.SphereGeometry(.1,12,12),c.h,0,1.88,0);
   for(const x of[-.1,.1]){add(new THREE.SphereGeometry(.025,8,8),0x222222,x*.8,1.62,.2);add(new THREE.CylinderGeometry(.08,.08,.7,10),0x333333,x,.35,0);}
   const mk=x=>{const p=new THREE.Group();p.position.set(x,1.3,0);const a=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.5,10),M(0xffd9b8));a.position.y=-.25;p.add(a);g.add(p);return p;};
   armR=mk(-.3);armL=mk(.3);vrm=null;setChar(g);
 }
-function setChar(o){if(ch)sc.remove(ch);ch=o;baseYaw=o.rotation.y;yaw=0;sc.add(o);fit(o);}
-function setup(v){
-  VU.rotateVRM0(v);v.scene.traverse(o=>{o.frustumCulled=false});
-  isV0=v.meta?.metaVersion==='0';vrm=v;armR=armL=null;
-  setChar(v.scene);if(v.lookAt)v.lookAt.target=cam;
-}
+function setup(v){VU.rotateVRM0(v);v.scene.traverse(o=>{o.frustumCulled=false});isV0=v.meta&&v.meta.metaVersion==='0';vrm=v;armR=armL=null;setChar(v.scene);if(v.lookAt)v.lookAt.target=cam;}
 async function loadVrm(src,p){
-  if(!GL)return msg('3D 引擎尚未載入');
-  let last;
-  for(const u of (Array.isArray(src)?src:[src])){
+  if(!GL)return msg('3D 引擎尚未載入');const my=tok;let last;
+  for(const u of(Array.isArray(src)?src:[src])){
     try{
       const g=await new Promise((res,rej)=>{const l=new GL();l.register(pp=>new VL(pp));
-        if(u instanceof ArrayBuffer)l.parse(u,'',res,rej);
-        else l.load(u,res,e=>{if(e.total)msg('載入 VRM… '+Math.round(e.loaded/e.total*100)+'%')},rej);});
-      const v=g.userData.vrm;if(!v)throw new Error('不是有效的 VRM 檔');
+        if(u instanceof ArrayBuffer)l.parse(u,'',res,rej);else l.load(u,res,e=>{if(e.total&&my===tok)msg('載入 VRM… '+Math.round(e.loaded/e.total*100)+'%')},rej);});
+      if(my!==tok)return;const v=g.userData.vrm;if(!v)throw new Error('不是有效的 VRM 檔');
       setup(v);$('lic').textContent=p.lic?'授權：'+p.lic:'';msg('已載入：'+p.name);return;
     }catch(e){last=e;}
   }
-  msg('VRM 載入失敗，沿用備用人物：'+(last&&last.message||last));
+  if(my===tok)msg('VRM 載入失敗，沿用目前人物：'+(last&&last.message||last));
 }
-$('loadp').onclick=()=>{const p=PRESETS.find(x=>x.id===$('sel').value);msg('載入中，首次需下載模型…');loadVrm(p.urls,p);};
-$('file').onchange=e=>{
-  const f=e.target.files[0];if(!f)return;
-  const rd=new FileReader();rd.onload=()=>loadVrm(rd.result,{name:f.name,lic:''});rd.readAsArrayBuffer(f);
-};
-let thr=-1,fired=false,ht=0,tm=0,yaw=0,baseYaw=0;
+function applyChar(id){const c=CH.find(x=>x.id===id)||CH[0];G.ch=c.id;tok++;if(!R)return;
+  if(c.fb){buildFallback(c.fb);$('lic').textContent='';msg('助手：'+c.n);}else{msg('載入 '+c.n+'…');loadVrm(c.urls,c);}}
+let thr=-1,fired=false,ht=0,cur=null;
 function pose(raise,dt){
-  if(!R){ // 平面備用人物
-    const x=c2.getContext('2d');if(!x)return;const w=c2.width=c2.clientWidth,h=c2.height=c2.clientHeight;
-    x.clearRect(0,0,w,h);x.fillStyle='#c1221b';x.fillRect(w*.38,h*.4,w*.24,h*.35);
-    x.fillStyle='#ffd9b8';x.beginPath();x.arc(w/2,h*.3,w*.14,0,6.3);x.fill();
-    x.strokeStyle='#ffd9b8';x.lineWidth=8;x.beginPath();x.moveTo(w*.4,h*.45);x.lineTo(w*.4-raise*w*.2,h*.45+(1-raise)*h*.18);x.stroke();return;
-  }
-  const bob=Math.sin(tm*2)*.01;
-  yaw+=((thr>=0?-1:0)-yaw)*Math.min(1,dt*8);ch.rotation.y=baseYaw+yaw; // 平常面向玩家，投料時轉向左側池子
+  if(!R){const x=c2.getContext('2d');if(!x)return;const w=c2.width=c2.clientWidth,h=c2.height=c2.clientHeight;x.clearRect(0,0,w,h);x.fillStyle='#c1221b';x.fillRect(w*.38,h*.4,w*.24,h*.35);x.fillStyle='#ffd9b8';x.beginPath();x.arc(w/2,h*.3,w*.14,0,6.3);x.fill();x.strokeStyle='#ffd9b8';x.lineWidth=8;x.beginPath();x.moveTo(w*.4,h*.45);x.lineTo(w*.4-raise*w*.2,h*.45+(1-raise)*h*.18);x.stroke();return;}
+  if(!ch)return;
+  yaw+=((thr>=0?-1:0)-yaw)*Math.min(1,dt*8);ch.rotation.y=baseYaw+yaw;
   if(vrm){
-    const hm=vrm.humanoid,N=n=>hm.getNormalizedBoneNode(n);
-    const set=(n,x,y,z)=>{const b=N(n);if(b)b.rotation.set(isV0?-x:x,y,isV0?-z:z)};
-    set('leftUpperArm',.1,0,-1.3);set('leftLowerArm',0,0,-.15);
-    set('rightUpperArm',.1-raise*1,0,1.3-raise*.15);set('rightLowerArm',-raise*.7,0,.15-raise*.05);
+    const hm=vrm.humanoid,set=(n,x,y,z)=>{const b=hm.getNormalizedBoneNode(n);if(b)b.rotation.set(isV0?-x:x,y,isV0?-z:z)};
+    set('leftUpperArm',.1,0,-1.3);set('leftLowerArm',0,0,-.15);set('rightUpperArm',.1-raise,0,1.3-raise*.15);set('rightLowerArm',-raise*.7,0,.15-raise*.05);
     set('spine',raise*.08,0,0);set('chest',Math.sin(tm*1.6)*.015,0,0);
     const em=vrm.expressionManager;
-    if(em){blinkT-=dt;if(blinkT<0&&blinkP<0){blinkP=0;blinkT=2+Math.random()*3}
-      let bl=0;if(blinkP>=0){blinkP+=dt;bl=Math.sin(Math.min(1,blinkP/.16)*Math.PI);if(blinkP>.16)blinkP=-1}
+    if(em){blinkT-=dt;if(blinkT<0&&blinkP<0){blinkP=0;blinkT=2+Math.random()*3}let bl=0;if(blinkP>=0){blinkP+=dt;bl=Math.sin(Math.min(1,blinkP/.16)*Math.PI);if(blinkP>.16)blinkP=-1}
       happyT=Math.max(0,happyT-dt);em.setValue('blink',bl);em.setValue('happy',happyT>0?1:0);}
     vrm.update(dt);
-  }else if(armR){armR.rotation.x=-raise*2.4;armL.rotation.x=Math.sin(tm*2)*.05;ch.position.y=bob;}
+  }else if(armR){armR.rotation.x=-raise*2.4;armL.rotation.x=Math.sin(tm*2)*.05;ch.position.y=Math.sin(tm*2)*.01;}
   R.render(sc,cam);
 }
-function throwNow(){
-  const f=fishes.length?fishes[Math.floor(Math.random()*fishes.length)]:{x:W/2,y:H/2};
-  drop(Math.max(20,Math.min(W-20,f.x+rnd(-40,40))),Math.max(20,Math.min(H-30,f.y+rnd(-30,30))),3);
+function autoOrder(){
+  const f=fishes.length?pick(fishes):{x:W/2,y:WH/2},c=cs();
+  queue.push({x:Math.max(20,Math.min(W-20,f.x+rnd(-40,40))),y:Math.max(24,Math.min(WH-20,f.y+rnd(-30,30))),n:c.k,t:Math.random()<c.lu+(G.built.includes('torii')?.1:0)?2:0});
 }
-
-/* ---------- 更新與繪製 ---------- */
+function release(o){
+  const hx=cb.x+cb.w*.3,hy=cb.y+cb.h*.42;
+  for(let i=0;i<o.n;i++)proj.push({x0:hx,y0:hy,x1:o.x+rnd(-16,16),y1:o.y+rnd(-8,8),u:-i*.1,t:o.t,d:Math.max(.5,Math.hypot(o.x-hx,o.y-hy)/420)});
+  beep(300,.1,'triangle');
+}
+/* ---------- 更新 ---------- */
+function gain(f){const r=SP[f.sp].r,k=Math.random()<.5?'w':'s',n=1+r;G.res[k]+=n;let t=(k==='w'?'🪵':'🪨')+n;if(r>=1&&Math.random()<.35*r){G.res.p++;t+=' 🦪1';}pop(f.x,f.y-16,t);}
+function sell(f){
+  const s=SP[f.sp],v=Math.round(s.p*sellMul()*(1+Math.min(combo,20)*.02));
+  G.coins+=v;track('sell');track('earn',v);gain(f);pop(f.x,f.y,'+'+v+' 🪙');f.s=.3;happyT=2.5;beep(780+s.r*120,.15,'triangle');
+  for(let i=0;i<=s.r;i++)ripples.push({x:f.x,y:f.y,r:2+i*10,a:.8});
+}
 function update(dt){
-  stock=Math.min(20,stock+dt*.6);
-  for(const f of foods){f.y+=16*dt;f.life-=dt;}
-  foods=foods.filter(f=>f.life>0&&f.y<H-8);
+  stock=Math.min(maxStock(),stock+dt*.6*(1+.15*G.lv.regen));
+  comboT-=dt;if(comboT<=0)combo=0;
+  for(const f of foods){f.y+=16*dt;f.life-=dt;}foods=foods.filter(f=>f.life>0&&f.y<WH-8);
   for(const f of fishes){
     const L=26+f.s*46;let t=null,bd=1e9;
     for(const o of foods){const d=Math.hypot(o.x-f.x,o.y-f.y);if(d<bd&&d<260){bd=d;t=o;}}
-    if(t){f.tx=t.x;f.ty=t.y;}
-    else{f.tt-=dt;if(f.tt<=0){f.tx=rnd(30,W-30);f.ty=rnd(30,H-30);f.tt=rnd(2,5);}}
-    const want=Math.atan2(f.ty-f.y,f.tx-f.x);let da=want-f.a;da=Math.atan2(Math.sin(da),Math.cos(da));
-    f.a+=da*Math.min(1,dt*3);
-    const sp=(t?70:35)*(1.1-f.s*.3);
-    f.x+=Math.cos(f.a)*sp*dt;f.y+=Math.sin(f.a)*sp*dt;
-    f.x=Math.max(10,Math.min(W-10,f.x));f.y=Math.max(10,Math.min(H-10,f.y));
-    f.ph+=dt*(t?12:6);
-    if(t&&bd<L*.5){
-      foods.splice(foods.indexOf(t),1);f.s+=.07;ripples.push({x:t.x,y:t.y,r:2,a:.6});
-      if(f.s>=1){const g=6+Math.floor(Math.random()*5);coins+=g;pop(f.x,f.y,'+'+g+' 🪙');happyT=2.5;f.s=.35;}
-    }
+    if(t){f.tx=t.x;f.ty=t.y;}else{f.tt-=dt;if(f.tt<=0){f.tx=rnd(30,W-30);f.ty=rnd(30,WH-30);f.tt=rnd(2,5);}}
+    let da=Math.atan2(f.ty-f.y,f.tx-f.x)-f.a;da=Math.atan2(Math.sin(da),Math.cos(da));f.a+=da*Math.min(1,dt*3);
+    const sp=(t?70:35)*(1.1-f.s*.3);f.x=Math.max(10,Math.min(W-10,f.x+Math.cos(f.a)*sp*dt));f.y=Math.max(10,Math.min(WH-10,f.y+Math.sin(f.a)*sp*dt));f.ph+=dt*(t?12:6);
+    if(t&&bd<L*.5){foods.splice(foods.indexOf(t),1);f.s+=FT[t.t].g*(1+.1*G.lv.grow);combo++;comboT=2.5;beep(500+Math.min(combo,20)*25,.04);ripples.push({x:t.x,y:t.y,r:2,a:.6});if(f.s>=1)sell(f);}
   }
   for(const r of ripples){r.r+=40*dt;r.a-=dt*.9;}ripples=ripples.filter(r=>r.a>0);
   for(const p of pops){p.y-=20*dt;p.l-=dt;}pops=pops.filter(p=>p.l>0);
-  /* 助手 */
+  bubT-=dt;if(bubT<=0&&bubbles.length<2){bubT=rnd(25,45);bubbles.push({x:rnd(40,W-40),y:WH+20,l:14,ph:rnd(0,6)});}
+  for(const b of bubbles){b.y-=26*dt;b.l-=dt;b.x+=Math.sin(tm*2+b.ph)*.3;}bubbles=bubbles.filter(b=>b.l>0&&b.y>-30);
   tm+=dt;ht+=dt;
-  if(auto&&thr<0&&ht>=interval()){ht=0;thr=0;fired=false;}
-  let raise=0;
-  if(thr>=0){thr+=dt/1.2;raise=Math.sin(Math.min(thr,1)*Math.PI);if(thr>.5&&!fired){fired=true;throwNow();}if(thr>=1)thr=-1;}
+  if(thr<0){if(queue.length){cur=queue.shift();thr=0;fired=false;}else if(ht>=helperInt()){ht=0;autoOrder();}}
+  for(const q of proj){q.u+=dt/q.d;if(q.u>=1){foods.push({x:q.x1,y:q.y1,life:9,t:q.t});ripples.push({x:q.x1,y:q.y1,r:2,a:.7});beep(260,.05);}}
+  proj=proj.filter(q=>q.u<1);
+  let raise=0;if(thr>=0){thr+=dt/1.2;raise=Math.sin(Math.min(thr,1)*Math.PI);if(thr>.5&&!fired){fired=true;release(cur);}if(thr>=1)thr=-1;}
   pose(raise,dt);
-  $('coins').textContent=Math.floor(coins);$('cnt').textContent=fishes.length;
-  $('stk').style.width=(stock/20*100)+'%';
-  $('buy').textContent='買魚苗（'+fishPrice()+'）';$('up').textContent='升級助手（'+upCost()+'）';
-  $('buy').disabled=fishes.length>=14;
+  saveT+=dt;if(saveT>5){saveT=0;save();}
+  $('coins').textContent=Math.floor(G.coins);$('cnt').textContent=fishes.length+'/'+maxFish();
+  $('stk').style.width=(stock/maxStock()*100)+'%';$('stkt').textContent=Math.floor(stock)+'/'+maxStock();
+  $('combo').textContent=combo>=3?'COMBO ×'+combo:'';$('res').textContent='🪵 '+G.res.w+'　🪨 '+G.res.s+'　🦪 '+G.res.p;
 }
-const kk=y=>.72+.4*Math.min(1,Math.max(0,y/H));
+/* ---------- 繪製（偽 3D 景深） ---------- */
+const kk=y=>.72+.4*Math.min(1,Math.max(0,y/WH));
 function drawFish(f){
-  const k=kk(f.y),L=(26+f.s*46)*k,w=Math.sin(f.ph)*.35;
-  px.save();px.translate(f.x+10*k,f.y+18*k);px.rotate(f.a);px.fillStyle='rgba(0,20,30,.3)'; // 池底陰影
+  const sp=SP[f.sp],k=kk(f.y),L=(26+f.s*46)*k,w=Math.sin(f.ph)*.35;
+  const c=sp.rb?['hsl('+(tm*60%360)+',80%,60%)','hsl('+((tm*60+120)%360)+',85%,75%)']:sp.c;
+  px.save();px.translate(f.x+10*k,f.y+18*k);px.rotate(f.a);px.fillStyle='rgba(0,20,30,.3)';
   px.beginPath();px.ellipse(0,0,L/2,L/4,0,0,6.28);px.moveTo(-L*.45,0);px.lineTo(-L*.85,-L*.22+w*L*.3);px.lineTo(-L*.85,L*.22+w*L*.3);px.fill();px.restore();
   px.save();px.translate(f.x,f.y);px.rotate(f.a);
-  px.fillStyle=f.c[0];px.globalAlpha=.75; // 半透明尾鰭與胸鰭
+  px.fillStyle=c[0];px.globalAlpha=.75;
   px.beginPath();px.moveTo(-L*.4,0);px.quadraticCurveTo(-L*.7,-L*.35+w*L*.3,-L*.95,-L*.28+w*L*.4);px.lineTo(-L*.85,w*L*.35);px.lineTo(-L*.95,L*.28+w*L*.4);px.quadraticCurveTo(-L*.7,L*.35+w*L*.3,-L*.4,0);px.fill();
   px.beginPath();px.ellipse(L*.12,-L*.3,L*.15,L*.06,-.5+w*.3,0,6.28);px.ellipse(L*.12,L*.3,L*.15,L*.06,.5-w*.3,0,6.28);px.fill();px.globalAlpha=1;
-  px.beginPath();px.ellipse(0,0,L/2,L/4,0,0,6.28);px.fill();
-  px.fillStyle=f.c[1];px.beginPath();px.ellipse(-L*.05,-L*.04,L*.18,L*.1,0,0,6.28);px.ellipse(L*.18,L*.05,L*.09,L*.06,0,0,6.28);px.fill();
-  px.save();px.beginPath();px.ellipse(0,0,L/2,L/4,0,0,6.28);px.clip();px.rotate(-f.a); // 立體光影：光源固定在畫面上方
-  const g=px.createLinearGradient(0,-L/4,0,L/4);g.addColorStop(0,'rgba(255,255,255,.5)');g.addColorStop(.45,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(0,0,0,.4)');
-  px.fillStyle=g;px.fillRect(-L,-L,2*L,2*L);px.restore();
+  if(sp.r>=2){px.shadowColor=RC[sp.r];px.shadowBlur=14;}
+  px.beginPath();px.ellipse(0,0,L/2,L/4,0,0,6.28);px.fill();px.shadowBlur=0;
+  px.fillStyle=c[1];px.beginPath();px.ellipse(-L*.05,-L*.04,L*.18,L*.1,0,0,6.28);px.ellipse(L*.18,L*.05,L*.09,L*.06,0,0,6.28);px.fill();
+  px.save();px.beginPath();px.ellipse(0,0,L/2,L/4,0,0,6.28);px.clip();px.rotate(-f.a);
+  const g=px.createLinearGradient(0,-L/4,0,L/4);g.addColorStop(0,'rgba(255,255,255,.5)');g.addColorStop(.45,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(0,0,0,.4)');px.fillStyle=g;px.fillRect(-L,-L,2*L,2*L);px.restore();
   px.fillStyle='#111';px.beginPath();px.arc(L*.32,-L*.09,L*.045,0,6.28);px.arc(L*.32,L*.09,L*.045,0,6.28);px.fill();
+  if(f.s>.85){px.strokeStyle='rgba(255,230,120,'+(.5+.5*Math.sin(tm*8))+')';px.lineWidth=2;px.beginPath();px.ellipse(0,0,L/2+3,L/4+3,0,0,6.28);px.stroke();}
   px.restore();
 }
 function pad(i,sh){
-  const x=W*(.12+i*.19),y=H*(.2+(i*37%50)/100)+Math.sin(tm+i)*2,r=18+i%3*6;
-  px.beginPath();px.ellipse(sh?x+14:x,sh?y+26:y,r,r*.55,0,.3,6.0);px.lineTo(sh?x+14:x,sh?y+26:y);
+  const x=W*(.12+i*.19),y=WH*(.2+(i*37%50)/100)+Math.sin(tm+i)*2,r=18+i%3*6,X=sh?x+14:x,Y=sh?y+26:y;
+  px.beginPath();px.ellipse(X,Y,r,r*.55,0,.3,6.0);px.lineTo(X,Y);
   if(sh){px.fillStyle='rgba(0,20,30,.25)';px.fill();return;}
   const g=px.createLinearGradient(x-r,y-r,x+r,y+r*.6);g.addColorStop(0,'#6fcf7a');g.addColorStop(1,'#2d7a3e');px.fillStyle=g;px.fill();
-  px.strokeStyle='rgba(255,255,255,.35)';px.lineWidth=1.5;px.beginPath();px.ellipse(x,y-1,r*.85,r*.45,0,3.6,5.6);px.stroke();
+}
+function drawItem(id,x,y){
+  const k=Math.max(.8,Math.min(1.3,W/420)),r=(c,a,b,w,h)=>{px.fillStyle=c;px.fillRect(x+a*k,y+b*k,w*k,h*k);},o=(c,a,b,rad)=>{px.fillStyle=c;px.beginPath();px.arc(x+a*k,y+b*k,rad*k,0,6.28);px.fill();},tri=(c,a,b,c2_,d,e_,f_)=>{px.fillStyle=c;px.beginPath();px.moveTo(x+a*k,y+b*k);px.lineTo(x+c2_*k,y+d*k);px.lineTo(x+e_*k,y+f_*k);px.fill();};
+  px.fillStyle='rgba(0,0,0,.2)';px.beginPath();px.ellipse(x+4*k,y,18*k,5*k,0,0,6.28);px.fill();
+  switch(id){
+   case'lantern':r('#8b8f95',-4,-10,8,10);r('#a9adb3',-8,-22,16,12);r('#ffd36b',-5,-20,10,8);r('#6e7279',-10,-26,20,5);break;
+   case'sakura':r('#6b4a2f',-3,-26,6,26);o('#f2a0bf',-12,-26,11);o('#f2a0bf',12,-26,11);o('#f7b6cf',0,-34,16);break;
+   case'bamboo':for(let q=-2;q<=2;q++){r('#4f9d3a',q*6-1.5,-34+Math.abs(q)*4,3,34-Math.abs(q)*4);r('#2e6e22',q*6-1.5,-18,3,1.5);}break;
+   case'flower':px.fillStyle='#7a5a3a';px.beginPath();px.ellipse(x,y-4*k,17*k,6*k,0,0,6.28);px.fill();['#ff6b8a','#ffd23a','#fff','#b66bff','#ff9a3a'].forEach((c,q)=>o(c,-12+q*6,-8-(q%2)*3,3));break;
+   case'flag':r('#6b4a2f',-1,-40,2,40);r('#e8452c',1,-40,16,8);r('#fff',1,-32,16,6);break;
+   case'bridge':px.fillStyle='#9a9a9a';px.beginPath();px.ellipse(x,y-4*k,22*k,13*k,0,Math.PI,0);px.fill();r('#777',-22,-4,44,4);px.fillStyle='#5a5a5a';px.beginPath();px.ellipse(x,y-4*k,9*k,7*k,0,Math.PI,0);px.fill();break;
+   case'hut':r('#b07a4a',-16,-24,32,24);tri('#c1221b',-22,-24,22,-24,0,-42);r('#5a3a20',-4,-14,8,14);break;
+   case'stall':r('#c9a46a',-18,-14,36,14);for(let q=0;q<6;q++)r(q%2?'#c1221b':'#fff',-20+q*7,-28,7,10);r('#6b4a2f',-18,-28,2,28);r('#6b4a2f',16,-28,2,28);break;
+   case'torii':r('#c1221b',-18,-34,5,34);r('#c1221b',13,-34,5,34);r('#c1221b',-24,-40,48,6);r('#c1221b',-20,-28,40,4);break;
+   case'pavilion':r('#a07a4a',-24,-3,48,4);r('#8b5a2b',-20,-24,4,22);r('#8b5a2b',16,-24,4,22);tri('#2f6f5f',-30,-24,30,-24,0,-44);break;
+  }
+}
+function drawLand(){
+  const L=H-WH;let g=px.createLinearGradient(0,WH,0,H);g.addColorStop(0,'#6aa84f');g.addColorStop(1,'#3f7a33');px.fillStyle=g;px.fillRect(0,WH,W,L);
+  px.fillStyle='rgba(214,190,140,.55)';px.beginPath();px.ellipse(W*.78,H-L*.2,W*.3,L*.22,0,0,6.28);px.fill();
+  px.strokeStyle='rgba(20,70,20,.5)';px.lineWidth=1.5;
+  for(let i=0;i<40;i++){const x=(i*73%100)/100*W,y=WH+12+(i*41%100)/100*(L-16);px.beginPath();px.moveTo(x,y);px.lineTo(x-2,y-6);px.moveTo(x,y);px.lineTo(x+2,y-6);px.stroke();}
+  for(let x=0;x<W;x+=18){px.fillStyle=(x/18|0)%2?'#a89a82':'#8f836d';px.beginPath();px.ellipse(x+9,WH+1,11,6,0,0,6.28);px.fill();}
+  px.fillStyle='rgba(0,0,0,.28)';px.beginPath();px.ellipse(cb.x+cb.w*.5,cb.y+cb.h*.95,cb.w*.3,6,0,0,6.28);px.fill();
+  BLD.filter(b=>G.built.includes(b.id)).sort((a,b)=>a.fy-b.fy).forEach(b=>drawItem(b.id,b.fx*W,WH+L*b.fy));
 }
 function draw(){
-  let g=px.createLinearGradient(0,0,0,H);g.addColorStop(0,'#63bcc6');g.addColorStop(.5,'#2a86a3');g.addColorStop(1,'#0f3f5c');
-  px.fillStyle=g;px.fillRect(0,0,W,H);
-  px.fillStyle='rgba(8,40,60,.16)'; // 池底石塊
-  for(let i=0;i<18;i++){px.beginPath();px.ellipse((i*97%100)/100*W,(i*61%100)/100*H,18+i%4*8,(18+i%4*8)*.45,0,0,6.28);px.fill();}
-  px.globalCompositeOperation='lighter';px.strokeStyle='rgba(180,255,255,.08)';px.lineWidth=2; // 水波光紋
-  for(let i=0;i<14;i++){px.beginPath();px.ellipse((i*83%100)/100*W+Math.sin(tm+i)*14,(i*57%100)/100*H+Math.cos(tm*.8+i)*8,28+i%3*12,10+i%2*6,0,0,6.28);px.stroke();}
+  px.save();px.beginPath();px.rect(0,0,W,WH);px.clip();
+  let g=px.createLinearGradient(0,0,0,WH);g.addColorStop(0,'#63bcc6');g.addColorStop(.5,'#2a86a3');g.addColorStop(1,'#0f3f5c');px.fillStyle=g;px.fillRect(0,0,W,WH);
+  px.fillStyle='rgba(8,40,60,.16)';for(let i=0;i<18;i++){px.beginPath();px.ellipse((i*97%100)/100*W,(i*61%100)/100*WH,18+i%4*8,(18+i%4*8)*.45,0,0,6.28);px.fill();}
+  px.globalCompositeOperation='lighter';px.strokeStyle='rgba(180,255,255,.08)';px.lineWidth=2;
+  for(let i=0;i<14;i++){px.beginPath();px.ellipse((i*83%100)/100*W+Math.sin(tm+i)*14,(i*57%100)/100*WH+Math.cos(tm*.8+i)*8,28+i%3*12,10+i%2*6,0,0,6.28);px.stroke();}
   px.globalCompositeOperation='source-over';
   for(let i=0;i<5;i++)pad(i,true);
   for(const o of foods){const k=kk(o.y);px.fillStyle='rgba(0,20,30,.25)';px.beginPath();px.ellipse(o.x+6,o.y+11,4*k,2*k,0,0,6.28);px.fill();}
   [...fishes].sort((a,b)=>a.y-b.y).forEach(drawFish);
   for(let i=0;i<5;i++)pad(i,false);
   for(const r of ripples){px.strokeStyle='rgba(255,255,255,'+r.a+')';px.lineWidth=1.5;px.beginPath();px.ellipse(r.x,r.y,r.r,r.r*.45,0,0,6.28);px.stroke();px.beginPath();px.ellipse(r.x,r.y,r.r*.6,r.r*.27,0,0,6.28);px.stroke();}
-  for(const o of foods){const k=kk(o.y),rr=3.8*k;const rg=px.createRadialGradient(o.x-rr*.35,o.y-rr*.4,.5,o.x,o.y,rr);rg.addColorStop(0,'#fff6d6');rg.addColorStop(1,'#d9a550');px.fillStyle=rg;px.beginPath();px.arc(o.x,o.y,rr,0,6.28);px.fill();}
-  let v=px.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);v.addColorStop(0,'rgba(0,15,25,0)');v.addColorStop(1,'rgba(0,15,25,.55)');px.fillStyle=v;px.fillRect(0,0,W,H);
-  let l=px.createLinearGradient(0,0,W,H*.8);l.addColorStop(0,'rgba(255,255,255,.14)');l.addColorStop(.6,'rgba(255,255,255,0)');px.fillStyle=l;px.fillRect(0,0,W,H);
-  let t=px.createLinearGradient(0,0,0,H*.16);t.addColorStop(0,'rgba(0,10,20,.55)');t.addColorStop(1,'rgba(0,10,20,0)');px.fillStyle=t;px.fillRect(0,0,W,H*.16); // 遠端池壁陰影
-  let wl=px.createLinearGradient(0,0,0,H*.05);wl.addColorStop(0,'#d8cbb0');wl.addColorStop(1,'#8a7a62');px.fillStyle=wl;px.fillRect(0,0,W,H*.05);
-  px.fillStyle='#6d5f4b';px.fillRect(0,H-H*.02,W,H*.02);
-  px.font='bold 15px sans-serif';px.textAlign='center';
-  for(const p of pops){px.fillStyle='rgba(255,230,120,'+Math.min(1,p.l)+')';px.fillText(p.t,p.x,p.y);}
+  for(const o of foods){const rr=3.8*kk(o.y),col=FT[o.t].col,rg=px.createRadialGradient(o.x-rr*.35,o.y-rr*.4,.5,o.x,o.y,rr);rg.addColorStop(0,'#fff');rg.addColorStop(1,col);px.fillStyle=rg;px.beginPath();px.arc(o.x,o.y,rr,0,6.28);px.fill();}
+  for(const b of bubbles){const rg=px.createRadialGradient(b.x-8,b.y-8,2,b.x,b.y,24);rg.addColorStop(0,'rgba(255,255,255,.9)');rg.addColorStop(1,'rgba(255,230,120,.35)');px.fillStyle=rg;px.strokeStyle='rgba(255,255,255,.8)';px.lineWidth=2;px.beginPath();px.arc(b.x,b.y,22,0,6.28);px.fill();px.stroke();px.fillStyle='#c1221b';px.font='bold 18px serif';px.textAlign='center';px.fillText('福',b.x,b.y+6);}
+  let v=px.createRadialGradient(W/2,WH/2,Math.min(W,WH)*.35,W/2,WH/2,Math.max(W,WH)*.75);v.addColorStop(0,'rgba(0,15,25,0)');v.addColorStop(1,'rgba(0,15,25,.5)');px.fillStyle=v;px.fillRect(0,0,W,WH);
+  let t=px.createLinearGradient(0,0,0,WH*.16);t.addColorStop(0,'rgba(0,10,20,.55)');t.addColorStop(1,'rgba(0,10,20,0)');px.fillStyle=t;px.fillRect(0,0,W,WH*.16);
+  let wl=px.createLinearGradient(0,0,0,WH*.05);wl.addColorStop(0,'#d8cbb0');wl.addColorStop(1,'#8a7a62');px.fillStyle=wl;px.fillRect(0,0,W,WH*.05);
+  px.restore();
+  drawLand();
+  for(const q of proj){if(q.u<0)continue;const u=q.u,x=q.x0+(q.x1-q.x0)*u,y=q.y0+(q.y1-q.y0)*u-Math.sin(Math.PI*u)*70;
+    px.fillStyle='rgba(0,0,0,.2)';px.beginPath();px.ellipse(q.x0+(q.x1-q.x0)*u,q.y0+(q.y1-q.y0)*u+6,3,1.5,0,0,6.28);px.fill();
+    px.fillStyle=FT[q.t].col;px.beginPath();px.arc(x,y,4,0,6.28);px.fill();px.strokeStyle='#fff';px.lineWidth=1;px.stroke();}
+  px.font='bold 15px sans-serif';px.textAlign='center';for(const p of pops){px.fillStyle='rgba(255,230,120,'+Math.min(1,p.l)+')';px.fillText(p.t,p.x,p.y);}
 }
 let last=performance.now();
 function loop(n){const dt=Math.min(.05,(n-last)/1000);last=n;update(dt);draw();requestAnimationFrame(loop);}
-addEventListener('resize',resize);resize();
-for(let i=0;i<3;i++)newFish();
+addEventListener('resize',resize);addEventListener('pagehide',save);
+resize();buildFood();
+for(const f of G.fish)newFish(f.sp,f.s);
+{const mins=Math.min(Date.now()-G.seen,108e5)/6e4;const g=Math.floor(mins*fishes.length*.15*(1+.1*G.lv.helper)*(G.built.includes('pavilion')?1.5:1));if(g>0&&mins>2){G.coins+=g;msg('離線期間助手幫你賺了 '+g+' 🪙');}}
 requestAnimationFrame(loop);initThree();
 </script>
 </body>
