@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>錦鯉池・投飼料養魚</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#efe6d8;--fg:#2a1a14;--card:#fffaf0;--line:#d8c7a8;--red:#c1221b;--gold:#e9b72b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1613;--fg:#f1e6d6;--card:#2b211c;--line:#4a3a30}}
+:root[data-theme="dark"]{--bg:#1d1613;--fg:#f1e6d6;--card:#2b211c;--line:#4a3a30}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font-family:"Noto Serif TC","PMingLiU","Songti TC",serif;padding:12px}
+.app{max-width:560px;margin:0 auto}
+h1{margin:4px 0 10px;text-align:center;font-weight:900;letter-spacing:.2em;font-size:clamp(20px,6vw,28px);background:var(--gold);color:#2a1a14;border:2px solid #7a4a10;padding:6px}
+.stats{display:flex;gap:8px;margin-bottom:8px;font-weight:600}
+.stats>div{flex:1;background:var(--card);border:2px solid var(--line);border-radius:8px;padding:6px 8px;font-size:14px;white-space:nowrap}
+.bar{height:6px;background:var(--line);border-radius:3px;margin-top:4px;overflow:hidden}
+.bar i{display:block;height:100%;width:100%;background:var(--red);transition:width .2s}
+.pondbox{position:relative;height:clamp(340px,62vh,520px);border:5px solid var(--red);border-radius:8px;overflow:hidden;box-shadow:0 6px 0 #8f1610;touch-action:manipulation}
+#pond{position:absolute;inset:0;width:100%;height:100%;display:block}
+#vrm{position:absolute;right:0;bottom:0;width:34%;max-width:150px;aspect-ratio:.68;pointer-events:none}
+.tip{position:absolute;left:8px;top:6px;font-size:12px;color:#fff;text-shadow:0 1px 2px #000;pointer-events:none}
+.btns{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+button,label.b{font:inherit;font-weight:600;font-size:14px;padding:10px 6px;border-radius:8px;border:2px solid #8f1610;background:var(--red);color:#fff7e0;cursor:pointer;text-align:center;box-shadow:0 3px 0 #8f1610}
+button:active,label.b:active{transform:translateY(2px);box-shadow:0 1px 0 #8f1610}
+button:disabled{opacity:.5}
+label.b input{display:none}
+select{font:inherit;font-size:13px;padding:10px 6px;border-radius:8px;border:2px solid var(--line);background:var(--card);color:var(--fg);min-width:0}
+#msg{margin-top:8px;min-height:1.4em;font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>錦鯉池</h1>
+<div class="stats">
+<div>🪙 <span id="coins">10</span></div>
+<div>🐟 <span id="cnt">3</span></div>
+<div>🍚 飼料<div class="bar"><i id="stk"></i></div></div>
+</div>
+<div class="pondbox">
+<canvas id="pond"></canvas>
+<span class="tip">點擊水面投飼料</span>
+<canvas id="vrm"></canvas>
+</div>
+<div class="btns">
+<button id="buy">買魚苗</button>
+<button id="up">升級助手</button>
+<button id="auto">助手：開</button>
+<button id="loadp">載入內建人物</button>
+<select id="sel"></select>
+<label class="b" style="grid-column:1/-1">或載入本機 .vrm 檔<input id="file" type="file" accept=".vrm"></label>
+</div>
+<div id="lic" style="font-size:11px;text-align:center;opacity:.7"></div>
+<div id="msg">魚吃飽長大後會自動賣出換金幣。</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@1.0.9/lib/three-vrm.min.js"></script>
+<script>
+const $=id=>document.getElementById(id), rnd=(a,b)=>a+Math.random()*(b-a);
+const pc=$('pond'),px=pc.getContext('2d');
+let W=1,H=1,D=1;
+function resize(){
+  const r=pc.parentElement.getBoundingClientRect();D=Math.min(devicePixelRatio||1,2);
+  W=r.width;H=r.height;pc.width=W*D;pc.height=H*D;px.setTransform(D,0,0,D,0,0);
+  if(typeof R!=='undefined'&&R){const v=$('vrm');R.setSize(v.clientWidth,v.clientHeight,false);cam.aspect=v.clientWidth/v.clientHeight;cam.updateProjectionMatrix();}
+}
+/* ---------- 遊戲狀態 ---------- */
+let coins=10,stock=10,auto=true,lvl=0,fishes=[],foods=[],ripples=[],pops=[];
+const interval=()=>4/(1+.4*lvl), fishPrice=()=>15+Math.max(0,fishes.length-3)*4, upCost=()=>30*(lvl+1);
+const COLS=[['#ff7a2f','#fff'],['#f2f2f2','#e8452c'],['#ffb347','#222'],['#e8452c','#fff']];
+function newFish(s=.35){fishes.push({x:rnd(40,W-40),y:rnd(H*.15,H*.8),a:rnd(0,6.28),s,ph:rnd(0,6),tx:0,ty:0,tt:0,c:COLS[Math.floor(Math.random()*COLS.length)]});}
+function drop(x,y,n=3){for(let i=0;i<n;i++)foods.push({x:x+rnd(-16,16),y:y+rnd(-8,8),life:9});ripples.push({x,y,r:2,a:.7});}
+function pop(x,y,t){pops.push({x,y,t,l:1.2});}
+pc.addEventListener('pointerdown',e=>{
+  if(stock<1)return pop(e.offsetX,e.offsetY,'沒飼料了');
+  stock--;drop(e.offsetX,e.offsetY);
+});
+$('buy').onclick=()=>{
+  if(fishes.length>=14)return msg('池子已經滿了');
+  if(coins<fishPrice())return msg('金幣不足');
+  coins-=fishPrice();newFish();msg('新魚苗加入！');
+};
+$('up').onclick=()=>{
+  if(coins<upCost())return msg('金幣不足');
+  coins-=upCost();lvl++;msg('助手投料更快了（Lv.'+lvl+'）');
+};
+$('auto').onclick=()=>{auto=!auto;$('auto').textContent='助手：'+(auto?'開':'關');};
+let mt;function msg(t){$('msg').textContent=t;clearTimeout(mt);mt=setTimeout(()=>$('msg').textContent='魚吃飽長大後會自動賣出換金幣。',2500);}
+
+/* ---------- 3D 人物（內建 VRM 預設 + 本機 VRM + 備用人物） ---------- */
+const GH=(r,b,p)=>[`https://raw.githubusercontent.com/${r}/${b}/${p}`,`https://cdn.jsdelivr.net/gh/${r}@${b}/${p}`];
+const PRESETS=[
+ {id:'cb',name:'AvatarSample_B（VRM 1.0・最輕量）',lic:'VRM 1.0 授權，免標註（VRoid Project / pixiv）',urls:GH('zoan37/ChatVRM','main','public/AvatarSample_B.vrm')},
+ {id:'orion',name:'Avatar Orion（CC0）',lic:'CC0 公眾領域',urls:GH('madjin/vrm-samples','master','Avatar_Orion.vrm')},
+ {id:'va',name:'AvatarSample_A（VRoid 範例）',lic:'VRoid 範例模型使用條件',urls:GH('madjin/vrm-samples','master','vroid/stable/AvatarSample_A.vrm')},
+ {id:'seed',name:'Seed-san（需標註 VirtualCast, Inc.）',lic:'VRM 1.0 授權；使用時必須標註作者：VirtualCast, Inc.',urls:GH('madjin/vrm-samples','master','Seed-san/vrm/Seed-san.vrm')}
+];
+$('sel').innerHTML=PRESETS.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+let R=null,cam,sc,ch=null,vrm=null,armR,armL,GL,VL,VU,isV0=false,happyT=0,blinkT=2,blinkP=-1;
+const c2=$('vrm');
+async function initThree(){
+  try{
+    if(!window.THREE||!THREE.GLTFLoader||!window.THREE_VRM)throw new Error('腳本未載入 THREE:'+!!window.THREE+' GLTF:'+!!(window.THREE&&THREE.GLTFLoader)+' VRM:'+!!window.THREE_VRM);
+    GL=THREE.GLTFLoader;VL=THREE_VRM.VRMLoaderPlugin;VU=THREE_VRM.VRMUtils;
+    R=new THREE.WebGLRenderer({canvas:c2,alpha:true,antialias:true});
+    R.setPixelRatio(Math.min(devicePixelRatio||1,2));R.setClearColor(0,0);
+    sc=new THREE.Scene();cam=new THREE.PerspectiveCamera(22,.68,.1,50);
+    const dl=new THREE.DirectionalLight(0xffffff,2.2);dl.position.set(.6,1.5,2.5);sc.add(dl);sc.add(new THREE.AmbientLight(0xffffff,1.1));
+    buildFallback();resize();
+    const p=PRESETS[0];loadVrm(p.urls,p);
+  }catch(e){console.warn(e);R=null;msg('3D 引擎載入失敗：'+e.message);}
+}
+function fit(o){
+  o.updateMatrixWorld(true);
+  const b=new THREE.Box3().setFromObject(o),h=b.max.y-b.min.y,cy=(b.max.y+b.min.y)/2;
+  const d=h*1.06/(2*Math.tan(THREE.MathUtils.degToRad(11)));
+  cam.position.set(0,cy,d);cam.lookAt(0,cy,0);
+}
+function buildFallback(){
+  const g=new THREE.Group(),M=c=>new THREE.MeshStandardMaterial({color:c,roughness:.7});
+  const add=(geo,c,x,y,z)=>{const m=new THREE.Mesh(geo,M(c));m.position.set(x,y,z);g.add(m);return m;};
+  add(new THREE.CylinderGeometry(.22,.26,.7,16),0xc1221b,0,1,0);
+  add(new THREE.SphereGeometry(.22,20,16),0xffd9b8,0,1.6,0);
+  add(new THREE.ConeGeometry(.42,.2,24),0xe9b72b,0,1.82,0);
+  for(const x of[-.1,.1]){add(new THREE.SphereGeometry(.025,8,8),0x222222,x*.8,1.62,.2);add(new THREE.CylinderGeometry(.08,.08,.7,10),0x333333,x,.35,0);}
+  const mk=x=>{const p=new THREE.Group();p.position.set(x,1.3,0);const a=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.5,10),M(0xffd9b8));a.position.y=-.25;p.add(a);g.add(p);return p;};
+  armR=mk(-.3);armL=mk(.3);vrm=null;setChar(g);
+}
+function setChar(o){if(ch)sc.remove(ch);ch=o;baseYaw=o.rotation.y;yaw=0;sc.add(o);fit(o);}
+function setup(v){
+  VU.rotateVRM0(v);v.scene.traverse(o=>{o.frustumCulled=false});
+  isV0=v.meta?.metaVersion==='0';vrm=v;armR=armL=null;
+  setChar(v.scene);if(v.lookAt)v.lookAt.target=cam;
+}
+async function loadVrm(src,p){
+  if(!GL)return msg('3D 引擎尚未載入');
+  let last;
+  for(const u of (Array.isArray(src)?src:[src])){
+    try{
+      const g=await new Promise((res,rej)=>{const l=new GL();l.register(pp=>new VL(pp));
+        if(u instanceof ArrayBuffer)l.parse(u,'',res,rej);
+        else l.load(u,res,e=>{if(e.total)msg('載入 VRM… '+Math.round(e.loaded/e.total*100)+'%')},rej);});
+      const v=g.userData.vrm;if(!v)throw new Error('不是有效的 VRM 檔');
+      setup(v);$('lic').textContent=p.lic?'授權：'+p.lic:'';msg('已載入：'+p.name);return;
+    }catch(e){last=e;}
+  }
+  msg('VRM 載入失敗，沿用備用人物：'+(last&&last.message||last));
+}
+$('loadp').onclick=()=>{const p=PRESETS.find(x=>x.id===$('sel').value);msg('載入中，首次需下載模型…');loadVrm(p.urls,p);};
+$('file').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const rd=new FileReader();rd.onload=()=>loadVrm(rd.result,{name:f.name,lic:''});rd.readAsArrayBuffer(f);
+};
+let thr=-1,fired=false,ht=0,tm=0,yaw=0,baseYaw=0;
+function pose(raise,dt){
+  if(!R){ // 平面備用人物
+    const x=c2.getContext('2d');if(!x)return;const w=c2.width=c2.clientWidth,h=c2.height=c2.clientHeight;
+    x.clearRect(0,0,w,h);x.fillStyle='#c1221b';x.fillRect(w*.38,h*.4,w*.24,h*.35);
+    x.fillStyle='#ffd9b8';x.beginPath();x.arc(w/2,h*.3,w*.14,0,6.3);x.fill();
+    x.strokeStyle='#ffd9b8';x.lineWidth=8;x.beginPath();x.moveTo(w*.4,h*.45);x.lineTo(w*.4-raise*w*.2,h*.45+(1-raise)*h*.18);x.stroke();return;
+  }
+  const bob=Math.sin(tm*2)*.01;
+  yaw+=((thr>=0?-1:0)-yaw)*Math.min(1,dt*8);ch.rotation.y=baseYaw+yaw; // 平常面向玩家，投料時轉向左側池子
+  if(vrm){
+    const hm=vrm.humanoid,N=n=>hm.getNormalizedBoneNode(n);
+    const set=(n,x,y,z)=>{const b=N(n);if(b)b.rotation.set(isV0?-x:x,y,isV0?-z:z)};
+    set('leftUpperArm',.1,0,-1.3);set('leftLowerArm',0,0,-.15);
+    set('rightUpperArm',.1-raise*1,0,1.3-raise*.15);set('rightLowerArm',-raise*.7,0,.15-raise*.05);
+    set('spine',raise*.08,0,0);set('chest',Math.sin(tm*1.6)*.015,0,0);
+    const em=vrm.expressionManager;
+    if(em){blinkT-=dt;if(blinkT<0&&blinkP<0){blinkP=0;blinkT=2+Math.random()*3}
+      let bl=0;if(blinkP>=0){blinkP+=dt;bl=Math.sin(Math.min(1,blinkP/.16)*Math.PI);if(blinkP>.16)blinkP=-1}
+      happyT=Math.max(0,happyT-dt);em.setValue('blink',bl);em.setValue('happy',happyT>0?1:0);}
+    vrm.update(dt);
+  }else if(armR){armR.rotation.x=-raise*2.4;armL.rotation.x=Math.sin(tm*2)*.05;ch.position.y=bob;}
+  R.render(sc,cam);
+}
+function throwNow(){
+  const f=fishes.length?fishes[Math.floor(Math.random()*fishes.length)]:{x:W/2,y:H/2};
+  drop(Math.max(20,Math.min(W-20,f.x+rnd(-40,40))),Math.max(20,Math.min(H-30,f.y+rnd(-30,30))),3);
+}
+
+/* ---------- 更新與繪製 ---------- */
+function update(dt){
+  stock=Math.min(20,stock+dt*.6);
+  for(const f of foods){f.y+=16*dt;f.life-=dt;}
+  foods=foods.filter(f=>f.life>0&&f.y<H-8);
+  for(const f of fishes){
+    const L=26+f.s*46;let t=null,bd=1e9;
+    for(const o of foods){const d=Math.hypot(o.x-f.x,o.y-f.y);if(d<bd&&d<260){bd=d;t=o;}}
+    if(t){f.tx=t.x;f.ty=t.y;}
+    else{f.tt-=dt;if(f.tt<=0){f.tx=rnd(30,W-30);f.ty=rnd(30,H-30);f.tt=rnd(2,5);}}
+    const want=Math.atan2(f.ty-f.y,f.tx-f.x);let da=want-f.a;da=Math.atan2(Math.sin(da),Math.cos(da));
+    f.a+=da*Math.min(1,dt*3);
+    const sp=(t?70:35)*(1.1-f.s*.3);
+    f.x+=Math.cos(f.a)*sp*dt;f.y+=Math.sin(f.a)*sp*dt;
+    f.x=Math.max(10,Math.min(W-10,f.x));f.y=Math.max(10,Math.min(H-10,f.y));
+    f.ph+=dt*(t?12:6);
+    if(t&&bd<L*.5){
+      foods.splice(foods.indexOf(t),1);f.s+=.07;ripples.push({x:t.x,y:t.y,r:2,a:.6});
+      if(f.s>=1){const g=6+Math.floor(Math.random()*5);coins+=g;pop(f.x,f.y,'+'+g+' 🪙');happyT=2.5;f.s=.35;}
+    }
+  }
+  for(const r of ripples){r.r+=40*dt;r.a-=dt*.9;}ripples=ripples.filter(r=>r.a>0);
+  for(const p of pops){p.y-=20*dt;p.l-=dt;}pops=pops.filter(p=>p.l>0);
+  /* 助手 */
+  tm+=dt;ht+=dt;
+  if(auto&&thr<0&&ht>=interval()){ht=0;thr=0;fired=false;}
+  let raise=0;
+  if(thr>=0){thr+=dt/1.2;raise=Math.sin(Math.min(thr,1)*Math.PI);if(thr>.5&&!fired){fired=true;throwNow();}if(thr>=1)thr=-1;}
+  pose(raise,dt);
+  $('coins').textContent=Math.floor(coins);$('cnt').textContent=fishes.length;
+  $('stk').style.width=(stock/20*100)+'%';
+  $('buy').textContent='買魚苗（'+fishPrice()+'）';$('up').textContent='升級助手（'+upCost()+'）';
+  $('buy').disabled=fishes.length>=14;
+}
+const kk=y=>.72+.4*Math.min(1,Math.max(0,y/H));
+function drawFish(f){
+  const k=kk(f.y),L=(26+f.s*46)*k,w=Math.sin(f.ph)*.35;
+  px.save();px.translate(f.x+10*k,f.y+18*k);px.rotate(f.a);px.fillStyle='rgba(0,20,30,.3)'; // 池底陰影
+  px.beginPath();px.ellipse(0,0,L/2,L/4,0,0,6.28);px.moveTo(-L*.45,0);px.lineTo(-L*.85,-L*.22+w*L*.3);px.lineTo(-L*.85,L*.22+w*L*.3);px.fill();px.restore();
+  px.save();px.translate(f.x,f.y);px.rotate(f.a);
+  px.fillStyle=f.c[0];px.globalAlpha=.75; // 半透明尾鰭與胸鰭
+  px.beginPath();px.moveTo(-L*.4,0);px.quadraticCurveTo(-L*.7,-L*.35+w*L*.3,-L*.95,-L*.28+w*L*.4);px.lineTo(-L*.85,w*L*.35);px.lineTo(-L*.95,L*.28+w*L*.4);px.quadraticCurveTo(-L*.7,L*.35+w*L*.3,-L*.4,0);px.fill();
+  px.beginPath();px.ellipse(L*.12,-L*.3,L*.15,L*.06,-.5+w*.3,0,6.28);px.ellipse(L*.12,L*.3,L*.15,L*.06,.5-w*.3,0,6.28);px.fill();px.globalAlpha=1;
+  px.beginPath();px.ellipse(0,0,L/2,L/4,0,0,6.28);px.fill();
+  px.fillStyle=f.c[1];px.beginPath();px.ellipse(-L*.05,-L*.04,L*.18,L*.1,0,0,6.28);px.ellipse(L*.18,L*.05,L*.09,L*.06,0,0,6.28);px.fill();
+  px.save();px.beginPath();px.ellipse(0,0,L/2,L/4,0,0,6.28);px.clip();px.rotate(-f.a); // 立體光影：光源固定在畫面上方
+  const g=px.createLinearGradient(0,-L/4,0,L/4);g.addColorStop(0,'rgba(255,255,255,.5)');g.addColorStop(.45,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(0,0,0,.4)');
+  px.fillStyle=g;px.fillRect(-L,-L,2*L,2*L);px.restore();
+  px.fillStyle='#111';px.beginPath();px.arc(L*.32,-L*.09,L*.045,0,6.28);px.arc(L*.32,L*.09,L*.045,0,6.28);px.fill();
+  px.restore();
+}
+function pad(i,sh){
+  const x=W*(.12+i*.19),y=H*(.2+(i*37%50)/100)+Math.sin(tm+i)*2,r=18+i%3*6;
+  px.beginPath();px.ellipse(sh?x+14:x,sh?y+26:y,r,r*.55,0,.3,6.0);px.lineTo(sh?x+14:x,sh?y+26:y);
+  if(sh){px.fillStyle='rgba(0,20,30,.25)';px.fill();return;}
+  const g=px.createLinearGradient(x-r,y-r,x+r,y+r*.6);g.addColorStop(0,'#6fcf7a');g.addColorStop(1,'#2d7a3e');px.fillStyle=g;px.fill();
+  px.strokeStyle='rgba(255,255,255,.35)';px.lineWidth=1.5;px.beginPath();px.ellipse(x,y-1,r*.85,r*.45,0,3.6,5.6);px.stroke();
+}
+function draw(){
+  let g=px.createLinearGradient(0,0,0,H);g.addColorStop(0,'#63bcc6');g.addColorStop(.5,'#2a86a3');g.addColorStop(1,'#0f3f5c');
+  px.fillStyle=g;px.fillRect(0,0,W,H);
+  px.fillStyle='rgba(8,40,60,.16)'; // 池底石塊
+  for(let i=0;i<18;i++){px.beginPath();px.ellipse((i*97%100)/100*W,(i*61%100)/100*H,18+i%4*8,(18+i%4*8)*.45,0,0,6.28);px.fill();}
+  px.globalCompositeOperation='lighter';px.strokeStyle='rgba(180,255,255,.08)';px.lineWidth=2; // 水波光紋
+  for(let i=0;i<14;i++){px.beginPath();px.ellipse((i*83%100)/100*W+Math.sin(tm+i)*14,(i*57%100)/100*H+Math.cos(tm*.8+i)*8,28+i%3*12,10+i%2*6,0,0,6.28);px.stroke();}
+  px.globalCompositeOperation='source-over';
+  for(let i=0;i<5;i++)pad(i,true);
+  for(const o of foods){const k=kk(o.y);px.fillStyle='rgba(0,20,30,.25)';px.beginPath();px.ellipse(o.x+6,o.y+11,4*k,2*k,0,0,6.28);px.fill();}
+  [...fishes].sort((a,b)=>a.y-b.y).forEach(drawFish);
+  for(let i=0;i<5;i++)pad(i,false);
+  for(const r of ripples){px.strokeStyle='rgba(255,255,255,'+r.a+')';px.lineWidth=1.5;px.beginPath();px.ellipse(r.x,r.y,r.r,r.r*.45,0,0,6.28);px.stroke();px.beginPath();px.ellipse(r.x,r.y,r.r*.6,r.r*.27,0,0,6.28);px.stroke();}
+  for(const o of foods){const k=kk(o.y),rr=3.8*k;const rg=px.createRadialGradient(o.x-rr*.35,o.y-rr*.4,.5,o.x,o.y,rr);rg.addColorStop(0,'#fff6d6');rg.addColorStop(1,'#d9a550');px.fillStyle=rg;px.beginPath();px.arc(o.x,o.y,rr,0,6.28);px.fill();}
+  let v=px.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);v.addColorStop(0,'rgba(0,15,25,0)');v.addColorStop(1,'rgba(0,15,25,.55)');px.fillStyle=v;px.fillRect(0,0,W,H);
+  let l=px.createLinearGradient(0,0,W,H*.8);l.addColorStop(0,'rgba(255,255,255,.14)');l.addColorStop(.6,'rgba(255,255,255,0)');px.fillStyle=l;px.fillRect(0,0,W,H);
+  let t=px.createLinearGradient(0,0,0,H*.16);t.addColorStop(0,'rgba(0,10,20,.55)');t.addColorStop(1,'rgba(0,10,20,0)');px.fillStyle=t;px.fillRect(0,0,W,H*.16); // 遠端池壁陰影
+  let wl=px.createLinearGradient(0,0,0,H*.05);wl.addColorStop(0,'#d8cbb0');wl.addColorStop(1,'#8a7a62');px.fillStyle=wl;px.fillRect(0,0,W,H*.05);
+  px.fillStyle='#6d5f4b';px.fillRect(0,H-H*.02,W,H*.02);
+  px.font='bold 15px sans-serif';px.textAlign='center';
+  for(const p of pops){px.fillStyle='rgba(255,230,120,'+Math.min(1,p.l)+')';px.fillText(p.t,p.x,p.y);}
+}
+let last=performance.now();
+function loop(n){const dt=Math.min(.05,(n-last)/1000);last=n;update(dt);draw();requestAnimationFrame(loop);}
+addEventListener('resize',resize);resize();
+for(let i=0;i<3;i++)newFish();
+requestAnimationFrame(loop);initThree();
+</script>
+</body>
+</html>
